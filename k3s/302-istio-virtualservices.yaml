@@ -1,0 +1,95 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: keycloak
+spec:
+  hosts:
+    - keycloak.skycomposer.net
+  gateways:
+    - istio-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: keycloak.default.svc.cluster.local
+            port:
+              number: 80
+          headers:
+            request:
+              set:
+                x-forwarded-proto: https
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: whoami
+spec:
+  hosts:
+    - keycloak.skycomposer.net
+  gateways:
+    - istio-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /whoami
+      route:
+        - destination:
+            host: whoami.default.svc.cluster.local
+            port:
+              number: 80
+          headers:
+            request:
+              set:
+                x-forwarded-proto: https
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: customermgmt
+spec:
+  hosts:
+    - keycloak.skycomposer.net
+  gateways:
+    - istio-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /customermgmt
+      route:
+        - destination:
+            host: customermgmt.default.svc.cluster.local
+            port:
+              number: 80
+          headers:
+            request:
+              set:
+                x-forwarded-proto: https
+
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: usermgmt
+spec:
+  hosts:
+    - keycloak.skycomposer.net
+  gateways:
+    - istio-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /usermgmt
+      route:
+        - destination:
+            host: usermgmt.default.svc.cluster.local
+            port:
+              number: 80
+          headers:
+            request:
+              set:
+                x-forwarded-proto: https
