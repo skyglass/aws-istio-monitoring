@@ -62,7 +62,7 @@ metadata:
 spec:
   ports:
     - protocol: TCP
-      name: web
+      name: http-web
       port: 80
       targetPort: 8095
   selector:

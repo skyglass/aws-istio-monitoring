@@ -52,4 +52,5 @@ spec:
     app: notification-restapp
   ports:
   - port: 8096
+    name: http-web
     targetPort: 8096
