@@ -35,7 +35,7 @@ module "compute" {
   public_sg           = module.networking.public_sg
   public_subnets      = module.networking.public_subnets
   instance_count      = 1
-  instance_type       = "t3.medium"
+  instance_type       = "t3.large"
   vol_size            = "20"
   public_key_path     = var.public_key_path
   key_name            = "mtckey"
