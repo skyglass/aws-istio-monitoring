@@ -1,21 +1,21 @@
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: keycloak
+  name: guestbook
 spec:
   hosts:
-    - keycloak.skycomposer.net
+    - istio.skycomposer.net
   gateways:
     - istio-gateway
   http:
     - match:
-        - uri:
-            prefix: /
+      - uri:
+          prefix: /
       route:
         - destination:
-            host: keycloak.default.svc.cluster.local
+            host: guestbook.default.svc.cluster.local
             port:
-              number: 80
+              number: 8200
           headers:
             request:
               set:
@@ -28,7 +28,7 @@ metadata:
   name: whoami
 spec:
   hosts:
-    - keycloak.skycomposer.net
+    - istio.skycomposer.net
   gateways:
     - istio-gateway
   http:
@@ -45,30 +45,6 @@ spec:
               set:
                 x-forwarded-proto: https
 
----
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: customermgmt
-spec:
-  hosts:
-    - keycloak.skycomposer.net
-  gateways:
-    - istio-gateway
-  http:
-    - match:
-        - uri:
-            prefix: /customermgmt
-      route:
-        - destination:
-            host: customermgmt.default.svc.cluster.local
-            port:
-              number: 80
-          headers:
-            request:
-              set:
-                x-forwarded-proto: https
-
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -77,7 +53,7 @@ metadata:
   name: usermgmt
 spec:
   hosts:
-    - keycloak.skycomposer.net
+    - istio.skycomposer.net
   gateways:
     - istio-gateway
   http:
@@ -102,7 +78,7 @@ metadata:
   name: grafana
 spec:
   hosts:
-    - keycloak.skycomposer.net
+    - istio.skycomposer.net
   gateways:
     - istio-gateway
   http:
@@ -127,7 +103,7 @@ metadata:
   name: kiali
 spec:
   hosts:
-    - keycloak.skycomposer.net
+    - istio.skycomposer.net
   gateways:
     - istio-gateway
   http:
@@ -151,7 +127,7 @@ metadata:
   name: tracing
 spec:
   hosts:
-    - keycloak.skycomposer.net
+    - istio.skycomposer.net
   gateways:
     - istio-gateway
   http:
@@ -172,35 +148,10 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: elasticsearch
-spec:
-  hosts:
-    - keycloak.skycomposer.net
-  gateways:
-    - istio-gateway
-  http:
-    - match:
-      - uri:
-          prefix: /elasticsearch
-      route:
-        - destination:
-            host: elasticsearch.logging.svc.cluster.local
-            port:
-              number: 9200            
-          headers:
-            request:
-              set:
-                x-forwarded-proto: https
-
-
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
   name: kibana
 spec:
   hosts:
-    - keycloak.skycomposer.net
+    - istio.skycomposer.net
   gateways:
     - istio-gateway
   http:
