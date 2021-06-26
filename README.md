@@ -291,8 +291,8 @@ If you see any errors with command "**kubectl apply -f ../k3s-dashboard**", try 
 - Submit several messages
 - go to "**https://istio.test.com/kibana**"
 - Configure Kibana Dashboard (Create Index Pattern, Discover Logs, Create Visualizations, Create Dashboard)
-- make sure that filter "**kubernetes.pod_name : guestbook and log : *guestbook***" returns logs related to your last activity on "**Guestbook**" page
-- make sure that filter "**kubernetes.pod_name : guestbook and log : *200***" shows successfull HTTP Responses
+- make sure that filter "**kubernetes.pod_name : guestbook and log : *guestbook* **" returns logs related to your last activity on "**Guestbook**" page
+- make sure that filter "**kubernetes.pod_name : guestbook and log : *200* **" shows successfull HTTP Responses
 
 
 
