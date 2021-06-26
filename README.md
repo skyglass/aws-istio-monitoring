@@ -10,7 +10,7 @@
 
 **Jaeger Distributed Tracing:** **https://istio.skycomposer.net/jaeger**
 
-# Microservices Monitoring on AWS with Terraform, K3S Kubernetes Cluster, Istio Gateway, Elasticsearch Fluentd Kibana Centralized Logging, Jaeger Distributed Tracing, Kiali Management Console and Grafana Monitoring Dashboard with Prometheus Datasource:
+## Microservices Monitoring on AWS with Terraform, K3S Kubernetes Cluster, Istio Gateway, Elasticsearch Fluentd Kibana Centralized Logging, Jaeger Distributed Tracing, Kiali Management Console and Grafana Monitoring Dashboard with Prometheus Datasource:
 
 ## Step 01 - Setup terraform account on AWS:
 #### Skip to Step 02, if you already have working Terraform account with all permissions
