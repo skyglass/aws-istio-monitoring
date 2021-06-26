@@ -286,10 +286,10 @@ If you see any errors with command "**kubectl apply -f ../k3s-dashboard**", try 
 
 ## Step-07: Test Kibana Logging Dashboard:
 
-- go to "**https://istio.test.com"
+- go to "**https://istio.test.com**"
 - you should see successfully loaded "**Guestbook**" page
 - Submit several messages
-- go to "**https://istio.test.com/kibana"
+- go to "**https://istio.test.com/kibana**"
 - Configure Kibana Dashboard (Create Index Pattern, Discover Logs, Create Visualizations, Create Dashboard)
 - make sure that filter "**kubernetes.pod_name : guestbook and log : *guestbook***" returns logs related to your last activity on "**Guestbook**" page
 - make sure that filter "**kubernetes.pod_name : guestbook and log : *200***" shows successfull HTTP Responses
@@ -298,11 +298,11 @@ If you see any errors with command "**kubectl apply -f ../k3s-dashboard**", try 
 
 ## Step-08: Test Grafana, Kiali and Jaeger Dashboards:
 
-- go to "**https://istio.test.com/grafana"
+- go to "**https://istio.test.com/grafana**"
 - you should see successfully loaded "**Grafana**" dashboard
-- go to "**https://istio.test.com/kiali"
+- go to "**https://istio.test.com/kiali**"
 - you should see successfully loaded "**Kiali**" dashboard
-- go to "**https://istio.test.com/jaeger"
+- go to "**https://istio.test.com/jaeger**"
 - you should see successfully loaded "**Jaeger**" dashboard
 
 
