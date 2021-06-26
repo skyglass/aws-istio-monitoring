@@ -1,18 +1,16 @@
-# Customer Management Microservice
+# Guestbook Microservice
 
-**Keycloak Administration Console** is available here: **https://users.skycomposer.net/auth**
+**Guestbook Messenger App:** **https://istio.skycomposer.net**
 
-###### **admin user:** admin@keycloak
+**Kibana Dashboard:** **https://istio.skycomposer.net/kibana**
 
-###### **admin password:** my-keycloak-password
+**Grafana Dashboard:** **https://istio.skycomposer.net/grafana**
 
-**Customer Portal**, secured with **Keycloak Server** is available here: **https://users.skycomposer.net/customermgmt**
+**Kiali Management Console:** **https://istio.skycomposer.net/kiali**
 
-###### **user:** user
+**Jaeger Distributed Tracing:** **https://istio.skycomposer.net/jaeger**
 
-###### **password:** test123
-
-# Microservices Deployment on AWS with Terraform, K3S Kubernetes Cluster, Traefik Ingress Controller and Keycloak OAuth2 Authorization Server:
+# Microservices Monitoring on AWS with Terraform, K3S Kubernetes Cluster, Istio Gateway, Fluentd and Kibana Logging, Jaeger Distributed Tracing, Kiali Management Console and Grafana Monitoring Dashboard with Prometheus Datasource:
 
 ## Step 01 - Setup terraform account on AWS:
 #### Skip to Step 02, if you already have working Terraform account with all permissions
@@ -169,22 +167,23 @@ access_ip = "0.0.0.0/0"
 public_key_path = "/Users/dddd/.ssh/keymtc.pub"
 private_key_path = "/Users/dddd/.ssh/keymtc"
 certificate_arn = "arn:aws:acm:ddddddddddddddddddddf"
-
-#--db vars --
-dbname     = "rancher"
-dbuser     = "bobby"
-dbpassword = "s00p3rS3cr3t"
+shared_credentials_file = "/Users/dddd/.aws/credentials"
+profile_account = "ops-account"
 ```
 
 - make sure you provide correct path for "**public_key_path**" and "**private_key_path**"
 
 - make sure you provide correct "**certifcate_arn**" for your AWS certificate, registered to your domain. You need to register your domain and create certificate for your domain in AWS
 
-- replace "**skyglass-terraform**" in "**backends.tf**" with the name of your S3 bucket, created in "**Step 01**"
+- make sure you provide correct path for your AWS credentials ("**shared_credentials_file**" variable)
 
-- replace "**us-east-1**" in "**backends.tf**" with the name of your **AWS region**
+- make sure you provide correct aws profile account name for "**profile_account**" variable (it should be "**ops-account**", if you followed instructions in "**Step 01**")
 
-- replace "**us-east-1**" in "**variables.tf**" with the name of your **AWS region**
+- replace "**skycomposer-istio*" in "**backends.tf**" with the name of your S3 bucket, created in "**Step 01**"
+
+- replace "**us-west-2**" in "**backends.tf**" with the name of your **AWS region**
+
+- replace "**us-west-2**" in "**variables.tf**" with the name of your **AWS region**
 
 
 - run the following commands:
@@ -204,24 +203,7 @@ export KUBECONFIG=./ks3/k3s.yaml
 ``` 
 
 
-
-
-
-## Step-03: Create "customer-management:1.0.0" Docker Image and push it to Docker Hub:
-
-- go back to the root directory of this github repository
-
-- Edit "**pom.xml:**" replace "**skyglass**" in "**<repository>skyglass/${project.name}</repository>**" with the name of your docker hub repository
-
-- Edit "**application.properties:**" replace the value of "**keycloak.auth-server-url**" with the **URL** of your **Keycloak Server**
-
--  for example, if "**test**" is the name of your docker hub repository, then run: 
-```
-mvn clean install
-docker push test/customer-management:1.0.0
-````
-
-## Step-04: Register your domain "test.com", create AWS Certificate for "*.test.com" and create Hosted Zone CNAME Record with DNS Name of your Load Balancer:
+## Step-03: Register your domain "test.com", create AWS Certificate for "*.test.com" and create Hosted Zone CNAME Record with DNS Name of your Load Balancer:
 
 - go to "**EC2 -> Load Balancers**" in your AWS Console
 
@@ -231,83 +213,114 @@ docker push test/customer-management:1.0.0
 
 - let's assume that the name of your domain is "**test.com**" and "**DNS name**" of your LoadBalancer is "**mtc-loadbalancer.com**"
 
-- create "**CNAME**" record with the name "**users.test.com**" and the value "**mtc-loadbalancer.com**"
+- create "**CNAME**" record with the name "**istio.test.com**" and the value "**mtc-loadbalancer.com**"
 
-- let's assume that the name of your "**CNAME**" record is "**users.test.com**" 
+- let's assume that the name of your "**CNAME**" record is "**istio.test.com**" 
 
 - let's assume that "**DNS name**" of your Load Balancer is "**mtc-loadbalancer.com**"
 
-- let's assume that you correctly registered your domain, created hosted zone, registered AWS SSL Certificate for your domain "***.test.com**" and created "**CNAME**" record with the name "**users.test.com**" and the value "**mtc-loadbalancer.com**"
+- let's assume that you correctly registered your domain, created hosted zone, registered AWS SSL Certificate for your domain "***.test.com**" and created "**CNAME**" record with the name "**istio.test.com**" and the value "**mtc-loadbalancer.com**"
 
 
-## Step-05: Deploy "customer-management" Microservice to AWS:
+
+## Step-04: Deploy Istio Service Mesh to AWS K3S Cluster:
+
+- install "**istioctl**" command-line tool (see installation options for your operating system, for example, in MacOS you can use "**homebrew**")
+
+- go to "**terraform**" directory and run the following commands:
+
+``` 
+export KUBECONFIG=./ks3/k3s.yaml
+
+istioctl install --set profile=demo -y
+
+kubectl label namespace default istio-injection=enabled
+``` 
+
+From now on, every pod in your default namespace will be injected with Istio Sidecar Proxy
+
+
+## Step-05: Deploy "Guestbook" Microservice and Istio Gateway to AWS K3S Cluster:
 
 - go to "**k3s**" folder of this github repository
 
-- Edit "**150-keycloak-config.yaml**": replace "**KEYCLOAK_HOSTNAME**" with the **hostname** of your **Keycloak Server**
+- Edit "**301-istio-gateway.yaml**": replace "**istio.skycomposer.net**" with the name of your sub-domain ("**istio.test.com**", for example)
 
-- Edit "**250-customermgmt.yaml**": replace "**skyglass/customer-management:1.0.0**" with the name of your docker image
-
-- Edit "**300-traefik-ingress.yaml**": replace "**users.skycomposer.net**" with the name of your sub-domain ("**users.test.com**", for example)
+- Edit "**302-istio-virtualservices.yaml**": replace "**istio.skycomposer.net**" with the name of your sub-domain ("**istio.test.com**", for example)
 
 - go back to "**terraform**" directory and run the following commands:
+
 ``` 
 export KUBECONFIG=./ks3/k3s.yaml
 
 kubectl apply -f ../k3s
+
+kubectl get pods
 ``` 
 
-## Step-06: Configure your Keycloak Authorization Server:
-
-- go to "**https://users.test.com/**"
-
-- you will be redirected to **Keycloak Home Page**
-
-- go to "**Administration Console**" and login with admin credentials:
-
-###### **admin user:** admin@keycloak
-
-###### **admin password:** my-keycloak-password
-
-- configure your **Keycloak Server** as described in this article: **https://www.baeldung.com/spring-boot-keycloak**
-
-###### Make sure that you set correct **Valid Redirection URIs**, like this: "**https://users.test.com/customermgmt/***"
-
-###### Make sure that new users have "**user**" role, otherwise you won't be able to see the **customers page**
+Make sure that all pods in default namespace have 2 containers
 
 
-## Step-07: Test your Microservices:
+## Step-06: Deploy Kibana, Grafana, Kiali and Jaeger to AWS K3S Cluster:
 
-- go to "**https://users.test.com/customermgmt"
+- go to "**k3s-dashboard**" folder of this github repository
 
-- you should see successfully loaded "**Customer Portal**" page
-- Click "**Enter the intranet:**" link: you will be redirected to **Keycloak Login Page**
-- Enter correct login and password: you will be redirected to **Existing Customers Page**
-- Click "**logout**" link: your user will be successfully logged out
+- Edit "**grafana.yaml**": replace the value of "**GF_SERVER_ROOT_URL**" property: "**https://istio.skycomposer.net/grafana**" with correspondent url of your domain ("**https://istio.test.com/grafana**", for example)
 
-- go to "**https://users.test.com/usermgmt/swagger-ui/index.html**"
+- Edit "**kiali.yaml**": replace the value of "**grafana: url**" property: "**https://istio.skycomposer.net/grafana/**" with correspondent url of your domain ("**https://istio.test.com/grafana**", for example)
 
-- you should see successfully loaded **user-management** "**Swagger UI**" page (deprecated, not protected by Keycloak)
+- Edit "**kiali.yaml**": replace the value of "**tracing: url**" property: "**https://istio.skycomposer.net/jaeger**" with correspondent url of your domain ("**https://istio.test.com/jaeger**", for example)
 
-- go to "**https://users.test.com/whoami**"
+- go back to "**terraform**" directory and run the following commands:
 
-- you should see successfully loaded "**WhoAmI**" page
+``` 
+export KUBECONFIG=./ks3/k3s.yaml
+
+kubectl apply -f ../k3s-logging
+
+kubectl apply -f ../k3s-dashboard
+``` 
+
+If you see any errors with command "**kubectl apply -f ../k3s-dashboard**", try the command again
+
+
+## Step-07: Test Kibana Logging Dashboard:
+
+- go to "**https://istio.test.com"
+- you should see successfully loaded "**Guestbook**" page
+- Submit several messages
+- go to "**https://istio.test.com/kibana"
+- Configure Kibana Dashboard (Create Index Pattern, Discover Logs, Create Visualizations, Create Dashboard)
+- make sure that filter "**kubernetes.pod_name : guestbook and log : *guestbook***" returns logs related to your last activity on "**Guestbook**" page
+- make sure that filter "**kubernetes.pod_name : guestbook and log : *200***" shows successfull HTTP Responses
+
+
+
+## Step-08: Test Grafana, Kiali and Jaeger Dashboards:
+
+- go to "**https://istio.test.com/grafana"
+- you should see successfully loaded "**Grafana**" dashboard
+- go to "**https://istio.test.com/kiali"
+- you should see successfully loaded "**Kiali**" dashboard
+- go to "**https://istio.test.com/jaeger"
+- you should see successfully loaded "**Jaeger**" dashboard
 
 
 
 
-### Congratulations! You sucessfully created Minimal Kubernetes Cluster on AWS with Terraform and K3S!
+### Congratulations! You sucessfully deployed Kibana Logging Dashboard, Grafana Monitoring Dashboard, Kiali Mangament Console and Jaeger Distributed Tracing on AWS with Terraform and K3S!
 - ### Now you can deploy your own docker containers to this cluster with minimal costs from AWS!
 - ### You significantly reduced your AWS bills by removing AWS EKS and NAT gateway!
-- #### You also implemented Traefik Ingress Controller, which acts as a Gateway API for your microservices
-- #### Now you can add any number of microservices to your K3S Kubernetes Cluster and use only one Gateway Traefik Controller for all these microservices 
+- #### You also implemented Istio Gateway, which acts as a Gateway API for your microservices
+- #### Now you can add any number of microservices to your K3S Kubernetes Cluster and use only one Istio Gateway for all these microservices 
 
-- ### You successfully deployed Keycloak Authorization Server, which protects your Spring Boot "Customer Management" Application
-- ### Spring Boot seamlessly handled the entire process of calling the Keycloak OAuth2 Authorization Server to authenticate the user
-- #### Now you can protect any number of microservices by your Keycloak Server and use Single Sign-On Authentication for all these microservices
+- ### You successfully deployed Guestbook Messenger App, which can be used to easily generate any number of logs for Kibana and Istio Dashboards
+- #### You successfully deployed and exposed Kibana Logging Dashboard, Grafana Monitoring Dashboard, Kiali Management Console and Jaeger Distributed Tracing
+- #### You externally exposed all these tools on your own registerd domain, with secured HTTPS connection
+- #### Now you can share these links to provide Centralized Logging and Monitoring for your portfolio applications
 
 
-## Step-08: Clean-Up:
+## Step-09: Clean-Up:
 
 ```
 terraform destroy --auto-approve  
